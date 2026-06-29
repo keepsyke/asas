@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Подбор оборудования для системы АСКУВТ</title>
+  <!-- styles -->
+  <style>
+    :root {
+      --color-primary: #20242B;
+      --color-accent: #CC0000;
+      --color-accent-dark: #a80000;
+      --color-bg: #f4f6f8;
+      --color-card: #ffffff;
+      --color-text: #20242B;
+      --color-muted: #68707d;
+      --color-border: #dfe4ea;
+      --color-error: #c62828;
+      --color-success-bg: #eef7f0;
+      --shadow-card: 0 18px 45px rgba(32, 36, 43, 0.10);
+      --shadow-soft: 0 10px 25px rgba(32, 36, 43, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--color-text);
+      background: linear-gradient(180deg, #ffffff 0%, var(--color-bg) 34%, #eef1f4 100%);
+      line-height: 1.5;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      color: #ffffff;
+      background:
+        radial-gradient(circle at 85% 18%, rgba(204, 0, 0, 0.36), transparent 28%),
+        linear-gradient(135deg, #20242B 0%, #2d323b 55%, #15181d 100%);
+      padding: 54px 20px 76px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 320px;
+      height: 320px;
+      right: -90px;
+      top: -120px;
+      border: 42px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .hero::after {
+      width: 180px;
+      height: 180px;
+      left: 8%;
+      bottom: -100px;
+      background: rgba(204, 0, 0, 0.18);
+      filter: blur(2px);
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 38px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .brand__mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--color-accent);
+      box-shadow: 0 12px 24px rgba(204, 0, 0, 0.34);
+    }
+
+    .hero__content {
+      max-width: 820px;
+    }
+
+    .hero h1 {
+      margin: 0 0 18px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      max-width: 680px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: clamp(16px, 2vw, 20px);
+    }
+
+    main {
+      flex: 1;
+      margin-top: -42px;
+      padding-bottom: 54px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 430px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel,
+    .results-panel,
+    .notice,
+    .summary-card,
+    .equipment-card {
+      background: var(--color-card);
+      border: 1px solid rgba(223, 228, 234, 0.78);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    .panel {
+      padding: 28px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .panel h2,
+    .results-panel h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel__description,
+    .results-empty,
+    .section-note {
+      margin: 0 0 22px;
+      color: var(--color-muted);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label,
+    .checkbox span {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+      font: inherit;
+      color: var(--color-text);
+      background: #ffffff;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 4px rgba(204, 0, 0, 0.10);
+    }
+
+    .field--error input,
+    .field--error select {
+      border-color: var(--color-error);
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--color-error);
+      font-size: 13px;
+    }
+
+    .checkbox {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: #fafbfc;
+      cursor: pointer;
+    }
+
+    .checkbox input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--color-accent);
+      margin-top: 1px;
+    }
+
+    .checkbox small {
+      display: block;
+      margin-top: 3px;
+      color: var(--color-muted);
+      font-weight: 400;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .button {
+      min-height: 50px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .button:active {
+      transform: translateY(1px);
+    }
+
+    .button--primary {
+      color: #ffffff;
+      background: var(--color-accent);
+      box-shadow: 0 12px 24px rgba(204, 0, 0, 0.24);
+    }
+
+    .button--primary:hover {
+      background: var(--color-accent-dark);
+    }
+
+    .button--secondary {
+      color: var(--color-primary);
+      background: #eef1f4;
+    }
+
+    .button--secondary:hover {
+      background: #e0e5ea;
+    }
+
+    .results-panel {
+      min-height: 420px;
+      padding: 28px;
+    }
+
+    .notice {
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-soft);
+      border-left: 5px solid var(--color-accent);
+    }
+
+    .notice--success {
+      background: var(--color-success-bg);
+      border-left-color: #2e7d32;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+
+    .summary-card {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      box-shadow: none;
+      background: #fafbfc;
+    }
+
+    .summary-card b {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+
+    .summary-card span {
+      color: var(--color-muted);
+      font-size: 13px;
+    }
+
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .equipment-card {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .equipment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(32, 36, 43, 0.13);
+    }
+
+    .equipment-card__image {
+      width: 96px;
+      height: 96px;
+      border-radius: 18px;
+      background: #f1f3f6;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .equipment-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.28;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef1f4;
+      color: var(--color-primary);
+    }
+
+    .badge--accent {
+      color: #ffffff;
+      background: var(--color-accent);
+    }
+
+    .equipment-card p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 14px;
+    }
+
+    .footer {
+      padding: 26px 20px;
+      background: var(--color-primary);
+      color: rgba(255, 255, 255, 0.72);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .hero {
+        padding: 34px 0 70px;
+      }
+
+      .container {
+        width: min(100% - 24px, 1180px);
+      }
+
+      .panel,
+      .results-panel {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .actions,
+      .summary-grid,
+      .equipment-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .equipment-card {
+        grid-template-columns: 78px 1fr;
+        gap: 12px;
+      }
+
+      .equipment-card__image {
+        width: 78px;
+        height: 78px;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="container">
+        <div class="brand" aria-label="АСКУВТ">
+          <span class="brand__mark">
+            <svg width="25" height="25" viewBox="0 0 25 25" fill="none" aria-hidden="true">
+              <path d="M4 18.5L12.5 4L21 18.5H4Z" stroke="white" stroke-width="2.2" stroke-linejoin="round"/>
+              <path d="M9 17H16" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          Инженерный подбор
+        </div>
+        <div class="hero__content">
+          <h1>Подбор оборудования для системы АСКУВТ</h1>
+          <p>Единый автономный HTML-инструмент для предварительного расчёта приборов учёта, интерфейсного оборудования, кабеля, питания и программного обеспечения.</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container layout">
+        <section class="panel" aria-labelledby="form-title">
+          <h2 id="form-title">Исходные данные</h2>
+          <p class="panel__description">Заполните параметры здания и выберите модели приборов на RS-485.</p>
+
+          <form id="calculator-form" class="form-grid" novalidate>
+            <div class="field" data-field="floors">
+              <label for="floors">Этажность здания</label>
+              <input id="floors" name="floors" type="number" min="1" step="1" inputmode="numeric" placeholder="Например, 17">
+              <div class="error" aria-live="polite"></div>
+            </div>
+
+            <div class="field" data-field="waterRisers">
+              <label for="waterRisers">Количество стояков воды для квартир</label>
+              <input id="waterRisers" name="waterRisers" type="number" min="0" step="1" inputmode="numeric" placeholder="Например, 4">
+              <div class="error" aria-live="polite"></div>
+            </div>
+
+            <div class="field" data-field="heatRisers">
+              <label for="heatRisers">Количество стояков теплоснабжения для квартир</label>
+              <input id="heatRisers" name="heatRisers" type="number" min="0" step="1" inputmode="numeric" placeholder="Например, 3">
+              <div class="error" aria-live="polite"></div>
+            </div>
+
+            <div class="field" data-field="waterMeterSku">
+              <label for="waterMeterSku">Счётчики воды СГВ на RS-485</label>
+              <select id="waterMeterSku" name="waterMeterSku"></select>
+              <div class="error" aria-live="polite"></div>
+            </div>
+
+            <div class="field" data-field="heatMeterSku">
+              <label for="heatMeterSku">Теплосчётчики RUT-01 на RS-485</label>
+              <select id="heatMeterSku" name="heatMeterSku"></select>
+              <div class="error" aria-live="polite"></div>
+            </div>
+
+            <label class="checkbox" for="hasThirdParty">
+              <input id="hasThirdParty" name="hasThirdParty" type="checkbox">
+              <span>Есть оборудование сторонних производителей<small>Влияет на рекомендуемое программное обеспечение.</small></span>
+            </label>
+
+            <div class="actions">
+              <button class="button button--primary" type="submit">Рассчитать</button>
+              <button class="button button--secondary" type="reset">Сбросить</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="results-panel" aria-labelledby="results-title">
+          <div id="results">
+            <h2 id="results-title">Результат расчёта</h2>
+            <p class="results-empty">После нажатия кнопки «Рассчитать» здесь появятся карточки оборудования и краткая сводка по системе.</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">© 2026. Предварительный подбор оборудования АСКУВТ. Итоговую спецификацию необходимо подтвердить проектировщиком.</div>
+    </footer>
+  </div>
+
+  <script>
+    // equipment dictionary
+    const equipmentDictionary = {
+      waterMeters: [
+        { sku: '187F2045R', name: 'Счётчик воды СГВ-15ЭВ RS-485 Ридан (L80) С фитингами' },
+        { sku: '187F2046R', name: 'Счётчик воды СГВ-15ЭВ RS-485 Ридан С фитингами' },
+        { sku: '187F2047R', name: 'Счётчик воды СГВ-20ЭВ RS-485 Ридан С фитингами' },
+        { sku: '187F2048R', name: 'Счётчик воды СГВ-15ЭВ RS-485 Ридан (L80) Без фитингов' },
+        { sku: '187F2049R', name: 'Счётчик воды СГВ-15ЭВ RS-485 Ридан Без фитингов' },
+        { sku: '187F2050R', name: 'Счётчик воды СГВ-20ЭВ RS-485 Ридан Без фитингов' }
+      ],
+      heatMeters: [
+        { sku: '187F2081R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN15/Qp1,5/RS-485/Подача' },
+        { sku: '187F2082R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN15/Qp1,5/RS-485/Возврат' },
+        { sku: '187F2083R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN20/Qp2,5/RS-485/Подача' },
+        { sku: '187F2084R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN20/Qp2,5/RS-485/Возврат' },
+        { sku: '187F2085R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN25/Qp3,5/RS-485/Подача' },
+        { sku: '187F2086R', name: 'Теплосчетчик ультразвуковой RUT-01 РТ/DN25/Qp3,5/RS-485/Возврат' }
+      ],
+      fixed: {
+        terminalBox: {
+          sku: '187F2111R',
+          name: 'Коробка монтажная КМ-222',
+          description: 'Используется для подключения приборов учёта на этажах к линии RS-485 и питанию.',
+          imageType: 'box'
+        },
+        converter: {
+          sku: '187F2112R',
+          name: 'MWN580 сервер, RS-485 8 портов в Ethernet',
+          description: 'Преобразует линии RS-485 в Ethernet для передачи данных в систему диспетчеризации.',
+          imageType: 'server'
+        },
+        repeater: {
+          sku: '187F2114R',
+          name: 'UT-520, повторитель интерфейсов RS-485',
+          description: 'Используется для увеличения длины линии RS-485 или разделения сети при большом количестве приборов.',
+          imageType: 'repeater'
+        },
+        powerSupply: {
+          sku: '187F2116R',
+          name: 'Блок питания DR100-24 на DIN-рейку, 24В, 4.17А',
+          description: 'Предназначен для питания приборов учёта и оборудования системы АСКУВТ.',
+          imageType: 'power'
+        },
+        cable: {
+          sku: 'EC-UU004-5E-PVC-zz',
+          name: 'Кабель U/UTP 4 пары, Кат.5e, медный, PVC',
+          description: 'В кабеле 8 проводов / 4 пары. 1 пара используется для коммуникации AB. 3 пары используются для питания: 3 провода «+» и 3 провода «-». Это обеспечивает увеличенное сечение жилы для питания и достаточное напряжение на дальних участках линии.',
+          imageType: 'cable'
+        }
+      }
+    };
+
+    const deviceDescriptions = {
+      water: 'Используется для коммерческого или технического учёта расхода воды с передачей данных по интерфейсу RS-485.',
+      heat: 'Используется для поквартирного учёта тепловой энергии с передачей показаний по интерфейсу RS-485.'
+    };
+
+    // calculation module
+    function calculateSystem(input) {
+      const totalRisers = input.waterRisers + input.heatRisers;
+      const waterMeters = input.waterRisers * input.floors;
+      const heatMeters = input.heatRisers * input.floors;
+      const terminalBoxes = totalRisers * input.floors;
+      const converters = Math.ceil(totalRisers / 8);
+      const cableLength = Math.ceil((((input.floors * 5) * 1.2) * totalRisers) + 100);
+      const repeaterRequired = cableLength > 1200 || Math.max(waterMeters, heatMeters) > 247;
+
+      const heatMeterPower = 0.12;
+      const waterMeterPower = 0.096;
+      const powerSupplyPower = 100;
+      const reserveFactor = 1.3;
+      const totalDevicePower = heatMeters * heatMeterPower + waterMeters * waterMeterPower;
+      const requiredPower = totalDevicePower * reserveFactor;
+      const powerSupplies = Math.max(1, Math.ceil(requiredPower / powerSupplyPower));
+
+      const waterMeter = equipmentDictionary.waterMeters.find((item) => item.sku === input.waterMeterSku);
+      const heatMeter = equipmentDictionary.heatMeters.find((item) => item.sku === input.heatMeterSku);
+
+      const equipment = [];
+
+      if (waterMeters > 0) {
+        equipment.push({ ...waterMeter, quantity: waterMeters, description: deviceDescriptions.water, imageType: 'water' });
+      }
+
+      if (heatMeters > 0) {
+        equipment.push({ ...heatMeter, quantity: heatMeters, description: deviceDescriptions.heat, imageType: 'heat' });
+      }
+
+      equipment.push(
+        { ...equipmentDictionary.fixed.terminalBox, quantity: terminalBoxes },
+        { ...equipmentDictionary.fixed.converter, quantity: converters },
+        { ...equipmentDictionary.fixed.cable, quantity: `${cableLength} м` },
+        { ...equipmentDictionary.fixed.powerSupply, quantity: powerSupplies }
+      );
+
+      if (repeaterRequired) {
+        equipment.push({ ...equipmentDictionary.fixed.repeater, quantity: 1 });
+      }
+
+      return {
+        input,
+        totals: {
+          totalRisers,
+          waterMeters,
+          heatMeters,
+          terminalBoxes,
+          converters,
+          cableLength,
+          totalDevicePower,
+          requiredPower,
+          powerSupplies
+        },
+        repeaterRequired,
+        software: input.hasThirdParty ? 'Ридан Измерения' : 'Indiv ARM Cloud',
+        topology: 'Рекомендуемая топология подключения — Шина',
+        equipment
+      };
+    }
+
+    // render functions
+    function equipmentSvg(type) {
+      const common = 'stroke="#20242B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+      const accent = '#CC0000';
+      const svgMap = {
+        water: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="26" y="36" width="68" height="48" rx="16" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M15 60h22M83 60h22" ${common}/><path d="M60 48c9 10 14 18 14 26a14 14 0 0 1-28 0c0-8 5-16 14-26Z" fill="${accent}" opacity=".9"/></svg>`,
+        heat: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="23" y="34" width="74" height="52" rx="14" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M38 60h44M60 42v36" ${common}/><path d="M45 24c-8 10 8 13 0 24M63 24c-8 10 8 13 0 24M81 24c-8 10 8 13 0 24" stroke="${accent}" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`,
+        box: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="25" y="24" width="70" height="72" rx="12" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M42 48h36M42 62h36M42 76h36" ${common}/><circle cx="82" cy="34" r="7" fill="${accent}"/></svg>`,
+        server: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="18" y="31" width="84" height="58" rx="10" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M33 49h28M33 65h28" ${common}/><circle cx="79" cy="49" r="5" fill="${accent}"/><circle cx="91" cy="49" r="5" fill="#20242B"/><path d="M76 69h18" stroke="${accent}" stroke-width="3" stroke-linecap="round"/></svg>`,
+        repeater: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="30" y="25" width="60" height="70" rx="13" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M45 45h30M45 60h30M45 75h30" ${common}/><path d="M18 60h18M84 60h18" stroke="${accent}" stroke-width="4" stroke-linecap="round"/><path d="M20 48l-10 12 10 12M100 48l10 12-10 12" stroke="${accent}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+        power: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="28" y="20" width="64" height="80" rx="12" fill="#fff" stroke="#20242B" stroke-width="3"/><path d="M60 38 48 63h14l-7 22 19-31H60l8-16Z" fill="${accent}"/><path d="M40 28h40M40 92h40" ${common}/></svg>`,
+        cable: `<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M22 64c18-35 57-35 76 0" stroke="#20242B" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M22 64c18-35 57-35 76 0" stroke="${accent}" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="28" cy="64" r="13" fill="#fff" stroke="#20242B" stroke-width="3"/><circle cx="92" cy="64" r="13" fill="#fff" stroke="#20242B" stroke-width="3"/></svg>`
+      };
+
+      return svgMap[type] || svgMap.box;
+    }
+
+    function renderEquipmentCard(item) {
+      return `
+        <article class="equipment-card">
+          <div class="equipment-card__image">${equipmentSvg(item.imageType)}</div>
+          <div>
+            <h3>${item.name}</h3>
+            <div class="meta">
+              <span class="badge">${item.sku}</span>
+              <span class="badge badge--accent">Количество: ${item.quantity}</span>
+            </div>
+            <p>${item.description}</p>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderResults(result) {
+      const resultsNode = document.getElementById('results');
+      const repeaterBlock = result.repeaterRequired
+        ? ''
+        : '<div class="notice notice--success"><strong>Повторитель RS-485 не требуется.</strong></div>';
+
+      resultsNode.innerHTML = `
+        <h2>Система АСКУВТ состоит из следующего оборудования:</h2>
+        <p class="section-note">Расчёт является предварительным и требует проверки проектировщиком.</p>
+        <div class="notice"><strong>${result.topology}</strong><br>Рекомендуемое программное обеспечение: <strong>${result.software}</strong>.</div>
+        ${repeaterBlock}
+        <div class="summary-grid" aria-label="Исходные данные расчёта">
+          <div class="summary-card"><b>${result.input.floors}</b><span>Этажность здания</span></div>
+          <div class="summary-card"><b>${result.totals.totalRisers}</b><span>Всего стояков</span></div>
+          <div class="summary-card"><b>${result.totals.waterMeters}</b><span>Счётчиков воды</span></div>
+          <div class="summary-card"><b>${result.totals.heatMeters}</b><span>Теплосчётчиков</span></div>
+          <div class="summary-card"><b>${result.totals.cableLength} м</b><span>Расчётная длина кабеля</span></div>
+          <div class="summary-card"><b>${result.totals.requiredPower.toFixed(2)} Вт</b><span>Требуемая мощность с резервом</span></div>
+        </div>
+        <div class="equipment-grid">
+          ${result.equipment.map(renderEquipmentCard).join('')}
+        </div>
+      `;
+
+      resultsNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // validation
+    function validateInput(input) {
+      const errors = {};
+
+      if (!Number.isFinite(input.floors)) {
+        errors.floors = 'Укажите этажность здания.';
+      } else if (input.floors <= 0) {
+        errors.floors = 'Этажность должна быть больше 0.';
+      }
+
+      if (!Number.isFinite(input.waterRisers)) {
+        errors.waterRisers = 'Укажите количество стояков воды.';
+      } else if (input.waterRisers < 0) {
+        errors.waterRisers = 'Количество стояков воды не может быть отрицательным.';
+      }
+
+      if (!Number.isFinite(input.heatRisers)) {
+        errors.heatRisers = 'Укажите количество стояков теплоснабжения.';
+      } else if (input.heatRisers < 0) {
+        errors.heatRisers = 'Количество стояков теплоснабжения не может быть отрицательным.';
+      }
+
+      if (Number.isFinite(input.waterRisers) && Number.isFinite(input.heatRisers) && input.waterRisers === 0 && input.heatRisers === 0) {
+        errors.waterRisers = 'Укажите хотя бы один стояк воды или теплоснабжения.';
+        errors.heatRisers = 'Укажите хотя бы один стояк воды или теплоснабжения.';
+      }
+
+      if (!input.waterMeterSku) {
+        errors.waterMeterSku = 'Выберите модель счётчика воды.';
+      }
+
+      if (!input.heatMeterSku) {
+        errors.heatMeterSku = 'Выберите модель теплосчётчика.';
+      }
+
+      return {
+        isValid: Object.keys(errors).length === 0,
+        errors
+      };
+    }
+
+    function readInput() {
+      const form = document.getElementById('calculator-form');
+      const formData = new FormData(form);
+      const parseNumber = (value) => value === '' || value === null ? NaN : Number(value);
+
+      return {
+        floors: parseNumber(formData.get('floors')),
+        waterRisers: parseNumber(formData.get('waterRisers')),
+        heatRisers: parseNumber(formData.get('heatRisers')),
+        waterMeterSku: formData.get('waterMeterSku'),
+        heatMeterSku: formData.get('heatMeterSku'),
+        hasThirdParty: formData.get('hasThirdParty') === 'on'
+      };
+    }
+
+    function showErrors(errors) {
+      document.querySelectorAll('.field').forEach((field) => {
+        const fieldName = field.dataset.field;
+        const errorNode = field.querySelector('.error');
+        const message = errors[fieldName] || '';
+        field.classList.toggle('field--error', Boolean(message));
+        errorNode.textContent = message;
+      });
+    }
+
+    // event handlers
+    function initSelects() {
+      const waterSelect = document.getElementById('waterMeterSku');
+      const heatSelect = document.getElementById('heatMeterSku');
+      const createOptions = (items, placeholder) => [
+        `<option value="">${placeholder}</option>`,
+        ...items.map((item) => `<option value="${item.sku}">${item.sku} — ${item.name}</option>`)
+      ].join('');
+
+      waterSelect.innerHTML = createOptions(equipmentDictionary.waterMeters, 'Выберите счётчик воды');
+      heatSelect.innerHTML = createOptions(equipmentDictionary.heatMeters, 'Выберите теплосчётчик');
+    }
+
+    function initHandlers() {
+      const form = document.getElementById('calculator-form');
+      const resultsNode = document.getElementById('results');
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const input = readInput();
+        const validation = validateInput(input);
+        showErrors(validation.errors);
+
+        if (!validation.isValid) {
+          return;
+        }
+
+        renderResults(calculateSystem(input));
+      });
+
+      form.addEventListener('reset', () => {
+        window.setTimeout(() => {
+          showErrors({});
+          resultsNode.innerHTML = `
+            <h2 id="results-title">Результат расчёта</h2>
+            <p class="results-empty">После нажатия кнопки «Рассчитать» здесь появятся карточки оборудования и краткая сводка по системе.</p>
+          `;
+        }, 0);
+      });
+    }
+
+    initSelects();
+    initHandlers();
+  </script>
+</body>
+</html>
